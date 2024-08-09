@@ -43,7 +43,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: adservice
+        image: zikadocker1991/adservice
         ports:
         - containerPort: 9555
         env:

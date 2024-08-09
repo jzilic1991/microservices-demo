@@ -18,7 +18,13 @@ import random
 from locust import FastHttpUser, TaskSet, between
 from faker import Faker
 import datetime
+import os
+
 fake = Faker()
+
+FASTAPI_HOST = os.getenv("FASTAPI_HOST")
+FASTAPI_PORT = os.getenv("FASTAPI_PORT")
+BASE_URL = f"http://{FASTAPI_HOST}:{FASTAPI_PORT}"
 
 products = [
     '0PUK6V6EV0',
@@ -32,33 +38,33 @@ products = [
     'OLJCESPC7Z']
 
 def index(l):
-    l.client.get("/")
+    l.client.get(f"{BASE_URL}/")
 
 def setCurrency(l):
     currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY']
-    l.client.post("/setCurrency",
+    l.client.post(f"{BASE_URL}/setCurrency",
         {'currency_code': random.choice(currencies)})
 
 def browseProduct(l):
-    l.client.get("/product/" + random.choice(products))
+    l.client.get(f"{BASE_URL}/product/" + random.choice(products))
 
 def viewCart(l):
-    l.client.get("/cart")
+    l.client.get(f"{BASE_URL}/cart")
 
 def addToCart(l):
     product = random.choice(products)
-    l.client.get("/product/" + product)
-    l.client.post("/cart", {
+    l.client.get(f"{BASE_URL}/product/" + product)
+    l.client.post(f"{BASE_URL}/cart", {
         'product_id': product,
         'quantity': random.randint(1,10)})
     
 def empty_cart(l):
-    l.client.post('/cart/empty')
+    l.client.post(f'{BASE_URL}/cart/empty')
 
 def checkout(l):
     addToCart(l)
     current_year = datetime.datetime.now().year+1
-    l.client.post("/cart/checkout", {
+    l.client.post(f"{BASE_URL}/cart/checkout", {
         'email': fake.email(),
         'street_address': fake.street_address(),
         'zip_code': fake.zipcode(),
@@ -72,7 +78,7 @@ def checkout(l):
     })
     
 def logout(l):
-    l.client.get('/logout')  
+    l.client.get(f'{BASE_URL}/logout')  
 
 
 class UserBehavior(TaskSet):

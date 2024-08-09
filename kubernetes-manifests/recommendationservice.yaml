@@ -43,7 +43,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: recommendationservice
+        image: zikadocker1991/recommendationservice
         ports:
         - containerPort: 8080
         readinessProbe:

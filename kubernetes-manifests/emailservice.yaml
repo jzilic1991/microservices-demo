@@ -43,7 +43,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: emailservice
+        image: zikadocker1991/emailservice
         ports:
         - containerPort: 8080
         env:

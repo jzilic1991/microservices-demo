@@ -22,29 +22,29 @@ build:
   # must provide a "default repo" using one of the methods described
   # here:
   # https://skaffold.dev/docs/concepts/#image-repository-handling
-  - image: emailservice
+  - image: zikadocker1991/emailservice
     context: src/emailservice
-  - image: productcatalogservice
+  - image: zikadocker1991/productcatalogservice
     context: src/productcatalogservice
-  - image: recommendationservice
+  - image: zikadocker1991/recommendationservice
     context: src/recommendationservice
-  - image: shoppingassistantservice
+  - image: zikadocker1991/shoppingassistantservice
     context: src/shoppingassistantservice
-  - image: shippingservice
+  - image: zikadocker1991/shippingservice
     context: src/shippingservice
-  - image: checkoutservice
+  - image: zikadocker1991/checkoutservice
     context: src/checkoutservice
-  - image: paymentservice
+  - image: zikadocker1991/paymentservice
     context: src/paymentservice
-  - image: currencyservice
+  - image: zikadocker1991/currencyservice
     context: src/currencyservice
-  - image: cartservice
+  - image: zikadocker1991/cartservice
     context: src/cartservice/src
     docker:
       dockerfile: Dockerfile
-  - image: frontend
+  - image: zikadocker1991/frontend
     context: src/frontend
-  - image: adservice
+  - image: zikadocker1991/adservice
     context: src/adservice
   tagPolicy:
     gitCommit: {}
@@ -100,8 +100,12 @@ requires:
   - app
 build:
   artifacts:
-  - image: loadgenerator
+  - image: zikadocker1991/loadgenerator
     context: src/loadgenerator
+  - image: zikadocker1991/verifier
+    context: ../vermon-edge/mon-server/
+    docker:
+      dockerfile: app/docker/Dockerfile
 manifests:
   rawYaml:
   - ./kubernetes-manifests/loadgenerator.yaml

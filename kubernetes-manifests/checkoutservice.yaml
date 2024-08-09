@@ -42,7 +42,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: checkoutservice
+          image: zikadocker1991/checkoutservice
           ports:
           - containerPort: 5050
           readinessProbe:

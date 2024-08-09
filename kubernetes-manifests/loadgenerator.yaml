@@ -77,12 +77,16 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: loadgenerator
+        image: zikadocker1991/loadgenerator
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: USERS
           value: "10"
+        - name: FASTAPI_HOST
+          value: "localhost"
+        - name: FASTAPI_PORT
+          value: "5001"
         resources:
           requests:
             cpu: 300m
@@ -90,6 +94,28 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
+      - name: verifier
+        image: zikadocker1991/verifier:v2
+        args: ["obj", "0"]
+        env:
+        - name: FASTAPI_PORT
+          value: "5001"
+        - name: FRONTEND_ADDR
+          value: "frontend.default.svc.cluster.local:80"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
 ---
 apiVersion: v1
 kind: ServiceAccount

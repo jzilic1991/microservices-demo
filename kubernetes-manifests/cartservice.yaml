@@ -43,7 +43,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cartservice
+        image: zikadocker1991/cartservice
         ports:
         - containerPort: 7070
         env:

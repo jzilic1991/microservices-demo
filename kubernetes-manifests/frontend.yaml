@@ -44,7 +44,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: frontend
+          image: zikadocker1991/frontend
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -112,28 +112,30 @@ metadata:
   labels:
     app: frontend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: frontend
   ports:
   - name: http
     port: 80
     targetPort: 8080
+    nodePort: 30080
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-external
-  labels:
-    app: frontend
-spec:
-  type: LoadBalancer
-  selector:
-    app: frontend
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: frontend-external
+#   labels:
+#     app: frontend
+# spec:
+#   type: LoadBalancer
+#   selector:
+#    app: frontend
+# ports:
+# - name: http
+#    port: 80
+#    targetPort: 8080
+
 ---
 apiVersion: v1
 kind: ServiceAccount

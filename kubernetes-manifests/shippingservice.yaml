@@ -42,7 +42,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: shippingservice
+        image: zikadocker1991/shippingservice
         ports:
         - containerPort: 50051
         env:
