@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-paths-config
+  namespace: default  # Replace with your namespace if not using 'default'
+data:
+  service_paths.json: |
+    {
+      "cart": "http://cart",
+      "empty": "http://cart/empty"
+    }
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,15 +69,35 @@ spec:
           limits:
             cpu: 300m
             memory: 128Mi
-        readinessProbe:
-          initialDelaySeconds: 15
-          grpc:
-            port: 7070
-        livenessProbe:
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          grpc:
-            port: 7070
+      - name: verifier
+        image: zikadocker1991/verifier:v2
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        args: ["obj", "0"]
+        env:
+        - name: FASTAPI_PORT
+          value: "5001"
+        - name: SERVICE_DOMAIN
+          value: "http://localhost:7070/"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: service-paths-config
 ---
 apiVersion: v1
 kind: Service
