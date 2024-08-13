@@ -60,8 +60,8 @@ spec:
         - /bin/sh
         - -exc
         - |
-          MAX_RETRIES=12
-          RETRY_INTERVAL=10
+          MAX_RETRIES=3
+          RETRY_INTERVAL=5
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Attempt $i: Pinging frontend: ${FRONTEND_ADDR}..."
             STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
@@ -101,9 +101,9 @@ spec:
           value: "frontend:80"
         - name: USERS
           value: "10"
-        - name: FASTAPI_HOST
+        - name: SERVER_HOST
           value: "localhost"
-        - name: FASTAPI_PORT
+        - name: SERVER_PORT
           value: "5001"
         resources:
           requests:
@@ -119,10 +119,12 @@ spec:
           mountPath: /etc/config
         args: ["obj", "0"]
         env:
-        - name: FASTAPI_PORT
+        - name: SERVER_PORT
           value: "5001"
         - name: SERVICE_DOMAIN
           value: "http://frontend.default.svc.cluster.local:80/"
+        - name: SERVER_TYPE
+          value: "fastapi"
         resources:
           requests:
             cpu: 100m

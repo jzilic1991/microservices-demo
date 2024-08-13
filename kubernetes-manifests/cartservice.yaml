@@ -71,13 +71,19 @@ spec:
             memory: 128Mi
       - name: verifier
         image: zikadocker1991/verifier:v2
+        ports:
+        - containerPort: 5001
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config
         args: ["obj", "0"]
         env:
-        - name: FASTAPI_PORT
+        - name: SERVER_HOST
+          value: "localhost"
+        - name: SERVER_PORT
           value: "5001"
+        - name: SERVER_TYPE
+          value: "fastapi"
         - name: SERVICE_DOMAIN
           value: "http://localhost:7070/"
         resources:
@@ -111,8 +117,8 @@ spec:
     app: cartservice
   ports:
   - name: grpc
-    port: 7070
-    targetPort: 7070
+    port: 5001
+    targetPort: 5001
 ---
 apiVersion: v1
 kind: ServiceAccount

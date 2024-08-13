@@ -22,9 +22,9 @@ import os
 
 fake = Faker()
 
-FASTAPI_HOST = os.getenv("FASTAPI_HOST")
-FASTAPI_PORT = os.getenv("FASTAPI_PORT")
-BASE_URL = f"http://{FASTAPI_HOST}:{FASTAPI_PORT}"
+SERVER_HOST = os.getenv("SERVER_HOST")
+SERVER_PORT = os.getenv("SERVER_PORT")
+BASE_URL = f"http://{SERVER_HOST}:{SERVER_PORT}"
 
 products = [
     '0PUK6V6EV0',
