@@ -1,24 +1,14 @@
-#!/usr/bin/python
-#
-# Copyright 2018 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import random
-from locust import FastHttpUser, TaskSet, between
+import logging
+import gevent
+from locust import FastHttpUser, TaskSet, between, events, HttpUser, LoadTestShape
 from faker import Faker
 import datetime
 import os
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 fake = Faker()
 
@@ -42,8 +32,7 @@ def index(l):
 
 def setCurrency(l):
     currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY']
-    l.client.post(f"{BASE_URL}/setCurrency",
-        {'currency_code': random.choice(currencies)})
+    l.client.post(f"{BASE_URL}/setCurrency", {'currency_code': random.choice(currencies)})
 
 def browseProduct(l):
     l.client.get(f"{BASE_URL}/product/" + random.choice(products))
@@ -86,13 +75,60 @@ class UserBehavior(TaskSet):
     def on_start(self):
         index(self)
 
-    tasks = {index: 1,
+    tasks = {
+        index: 1,
         setCurrency: 2,
         browseProduct: 10,
         addToCart: 2,
         viewCart: 3,
-        checkout: 1}
+        checkout: 1
+    }
 
 class WebsiteUser(FastHttpUser):
     tasks = [UserBehavior]
-    wait_time = between(1, 10)
+    wait_time = between(1, 1)  # Constant request frequency: 1 request per second
+
+class CyclicLoadShape(LoadTestShape):
+    step_time = 10  # Time between each step in seconds
+    step_load = 10  # Number of users added at each step
+    spawn_rate = 10  # Number of users to start/stop per second
+
+    def __init__(self):
+        super().__init__()
+        self.scaling_up = True
+        self.current_users = 0
+        self.last_change_time = 0
+
+    def tick(self):
+        run_time = self.get_run_time()
+        elapsed_time = run_time - self.last_change_time
+
+        if elapsed_time >= self.step_time:
+            if self.scaling_up:
+                self.current_users += self.step_load
+                if self.current_users >= 100:  # Max user limit for scaling up
+                    self.current_users = 100
+                    self.scaling_up = False
+                logger.info(f"Scaling up to {self.current_users} users at {run_time} seconds")
+            else:
+                self.current_users = 10
+                self.scaling_up = True
+                logger.info(f"Scaling down to {self.current_users} users at {run_time} seconds")
+
+            self.last_change_time = run_time
+            return (self.current_users, self.spawn_rate)
+        else:
+            return (self.current_users, self.spawn_rate)
+
+@events.test_start.add_listener
+def on_test_start(environment, **kwargs):
+    logger.info("Test is starting...")
+
+@events.test_stop.add_listener
+def on_test_stop(environment, **kwargs):
+    logger.info("Test is stopping...")
+
+if __name__ == "__main__":
+    # Locust will use the WebsiteUser class as the default user
+    WebsiteUser().run()
+
