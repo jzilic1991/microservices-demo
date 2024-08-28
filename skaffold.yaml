@@ -46,6 +46,10 @@ build:
     context: src/frontend
   - image: zikadocker1991/adservice
     context: src/adservice
+  - image: zikadocker1991/mon-agent
+    context: ../vermon-edge/mon-agent
+    docker:
+      dockerfile: docker/Dockerfile
   tagPolicy:
     gitCommit: {}
   local:
