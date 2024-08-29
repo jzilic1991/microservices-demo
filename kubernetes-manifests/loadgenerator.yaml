@@ -125,6 +125,8 @@ spec:
           value: "http://frontend.default.svc.cluster.local:80/"
         - name: SERVER_TYPE
           value: "fastapi"
+        - name: REQUIREMENT_VERIFIER_SERVICE
+          value: "req-verifier:5001"
         resources:  
           requests:
             cpu: 100m
