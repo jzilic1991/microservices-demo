@@ -113,7 +113,7 @@ spec:
             cpu: 500m
             memory: 512Mi
       - name: verifier
-        image: zikadocker1991/verifier:v3
+        image: zikadocker1991/verifier:v4
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config

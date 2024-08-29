@@ -113,6 +113,7 @@ build:
 manifests:
   rawYaml:
   - ./kubernetes-manifests/loadgenerator.yaml
+  - ../vermon-edge/mon-server/app/kubernetes/req-verifier.yaml
 deploy:
   kubectl: {}
 profiles:
