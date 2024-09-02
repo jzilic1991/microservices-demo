@@ -50,11 +50,18 @@ build:
     context: ../vermon-edge/mon-agent
     docker:
       dockerfile: docker/Dockerfile
+  - image: zikadocker1991/verifier
+    context: ../vermon-edge/mon-server/
+    docker:
+      dockerfile: app/docker/Dockerfile
   tagPolicy:
     gitCommit: {}
   local:
     useBuildkit: false
 manifests:
+  rawYaml:
+    - ../vermon-edge/mon-server/app/kubernetes/req-verifier.yaml
+    - ../vermon-edge/mon-agent/kubernetes/mon-agent.yaml
   kustomize:
     paths:
     - kubernetes-manifests
@@ -106,14 +113,9 @@ build:
   artifacts:
   - image: zikadocker1991/loadgenerator
     context: src/loadgenerator
-  - image: zikadocker1991/verifier
-    context: ../vermon-edge/mon-server/
-    docker:
-      dockerfile: app/docker/Dockerfile
 manifests:
   rawYaml:
   - ./kubernetes-manifests/loadgenerator.yaml
-  - ../vermon-edge/mon-server/app/kubernetes/req-verifier.yaml
 deploy:
   kubectl: {}
 profiles:
