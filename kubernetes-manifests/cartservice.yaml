@@ -88,6 +88,8 @@ spec:
           value: "http://localhost:7070/"
         - name: CART_SERVICE_ADDR
           value: "localhost:7070"
+        - name: REQUIREMENT_VERIFIER_SERVICE
+          value: "req-verifier:5001"
         resources:
           requests:
             cpu: 100m
