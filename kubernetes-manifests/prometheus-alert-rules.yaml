@@ -8,36 +8,55 @@ data:
     groups:
       - name: OnlineBoutiqueAlerts
         rules:
-          - alert: FrontendServiceDown
-            expr: probe_success{job="blackbox-frontend"} == 0
+
+          # R1 Requirement: Cart Operations Integrity, Performance, and Resource Usage
+
+          ## Latency Alerts
+          - alert: HighCartOperationLatency
+            expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="cartservice", endpoint=~"/AddItem|/GetCart|/EmptyCart"}[5m])) > 0.2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Cart operations experiencing high latency"
+              description: "95th percentile response time for cart operations exceeded 200ms for 5 minutes."
+
+          - alert: CriticalCartOperationLatency
+            expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="cartservice", endpoint=~"/AddItem|/GetCart|/EmptyCart"}[5m])) > 0.5
             for: 2m
             labels:
               severity: critical
             annotations:
-              summary: "Frontend service is down"
-              description: "The frontend service has been down for more than 2 minutes."
-          - alert: CartserviceDown
-            expr: probe_success{job="blackbox-cartservice"} == 0
-            for: 2m
-            labels:
-              severity: critical
-            annotations:
-              summary: "Cartservice is down"
-              description: "The cartservice has been down for more than 2 minutes."
-          - alert: HighFrontendResponseTime
-            expr: probe_duration_seconds{job="blackbox-frontend"} > 1
-            for: 1m
+              summary: "Cart operations critical latency issue"
+              description: "95th percentile response time for cart operations exceeded 500ms for 2 minutes. Investigate potential overload."
+
+          ## Failure Rate Alerts
+          - alert: HighCartOperationFailureRate
+            expr: (sum(rate(http_requests_total{job="cartservice", endpoint=~"/AddItem|/GetCart|/EmptyCart", status=~"5.."}[5m])) /
+                    sum(rate(http_requests_total{job="cartservice", endpoint=~"/AddItem|/GetCart|/EmptyCart"}[5m]))) > 0.005
+            for: 5m
             labels:
               severity: warning
             annotations:
-              summary: "High response time for frontend"
-              description: "The frontend service has a response time higher than 1 second for more than 1 minute."
-          - alert: HighCartserviceResponseTime
-            expr: probe_duration_seconds{job="blackbox-cartservice"} > 1
-            for: 1m
+              summary: "Cart operations failure rate is too high"
+              description: "Failure rate for cart operations exceeded 0.5% over the last 5 minutes."
+
+          ## Resource Usage Alerts
+          - alert: HighCartServiceCPUUsage
+            expr: avg(rate(container_cpu_usage_seconds_total{container="cart-service"}[5m])) > 0.8
+            for: 5m
             labels:
               severity: warning
             annotations:
-              summary: "High response time for cartservice"
-              description: "The cartservice has a response time higher than 1 second for more than 1 minute."
+              summary: "Cart service high CPU usage"
+              description: "Cart service CPU utilization exceeded 80% for more than 5 minutes."
+
+          - alert: HighCartServiceMemoryUsage
+            expr: avg(container_memory_usage_bytes{container="cart-service"} / container_spec_memory_limit_bytes{container="cart-service"}) > 0.7
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Cart service high memory usage"
+              description: "Cart service memory utilization exceeded 70% for more than 5 minutes."
 

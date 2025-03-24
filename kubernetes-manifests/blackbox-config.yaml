@@ -1,0 +1,37 @@
+apiVersion: v1
+data:
+  blackbox.yaml: |
+    modules:
+      grpc_health:
+        prober: grpc
+        timeout: 5s
+        grpc:
+          service: cartservice.Cart
+          tls: false
+      http_2xx:
+        http:
+          follow_redirects: true
+          preferred_ip_protocol: ip4
+          valid_http_versions:
+          - HTTP/1.1
+          - HTTP/2.0
+        prober: http
+        timeout: 5s
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"blackbox.yaml":"modules:\n  grpc_health:\n    prober: grpc\n    timeout: 5s\n    grpc:\n      service: cartservice.Cart\n      tls: false\n  http_2xx:\n    http:\n      follow_redirects: true\n      preferred_ip_protocol: ip4\n      valid_http_versions:\n      - HTTP/1.1\n      - HTTP/2.0\n    prober: http\n    timeout: 5s\n"},"kind":"ConfigMap","metadata":{"annotations":{"meta.helm.sh/release-name":"blackbox-exporter","meta.helm.sh/release-namespace":"default"},"creationTimestamp":"2024-09-25T15:00:44Z","labels":{"app.kubernetes.io/instance":"blackbox-exporter","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"prometheus-blackbox-exporter","app.kubernetes.io/version":"v0.25.0","helm.sh/chart":"prometheus-blackbox-exporter-9.0.0"},"name":"blackbox-exporter-prometheus-blackbox-exporter","namespace":"default","resourceVersion":"41553392","uid":"02b971b0-98f4-4256-a986-c4c47431aba1"}}
+    meta.helm.sh/release-name: blackbox-exporter
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: "2025-03-11T13:23:38Z"
+  labels:
+    app.kubernetes.io/instance: blackbox-exporter
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: prometheus-blackbox-exporter
+    app.kubernetes.io/version: v0.25.0
+    helm.sh/chart: prometheus-blackbox-exporter-9.0.0
+  name: blackbox-exporter-prometheus-blackbox-exporter
+  namespace: default
+  resourceVersion: "53096785"
+  uid: 5135e152-5908-463a-aaa4-0f816fb32cff

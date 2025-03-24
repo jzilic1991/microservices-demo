@@ -104,10 +104,25 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
+      # OpenTelemetry Sidecar for gRPC Metrics Collection
+      - name: otel-collector
+        image: otel/opentelemetry-collector-contrib:latest
+        args:
+        - "--config=/etc/otel-collector-config.yaml"
+        ports:
+        - containerPort: 9464  # Prometheus metrics port
+        volumeMounts:
+        - name: otel-config
+          mountPath: /etc/otel-collector-config.yaml
+          subPath: otel-collector-config.yaml
+
       volumes:
       - name: config-volume
         configMap:
           name: service-paths-config
+      - name: otel-config
+        configMap:
+          name: otel-collector-config      
 ---
 apiVersion: v1
 kind: Service
@@ -120,9 +135,17 @@ spec:
   selector:
     app: cartservice
   ports:
-  - name: grpc
+  - name: grpc-verifier
     port: 5001
+    protocol: TCP
     targetPort: 5001
+  - name: grpc-cart
+    port: 7070
+    protocol: TCP
+    targetPort: 7070
+  - name: grpc-metrics
+    port: 9464          # Exposing the OpenTelemetry sidecar metrics port
+    targetPort: 9464    # Target the OpenTelemetry sidecar
 ---
 apiVersion: v1
 kind: ServiceAccount
