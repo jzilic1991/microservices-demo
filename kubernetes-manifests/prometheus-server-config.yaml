@@ -137,19 +137,6 @@ data:
           - target_label: __address__
             replacement: blackbox-exporter-prometheus-blackbox-exporter:9115  # The Blackbox Exporter service
       
-      - job_name: 'blackbox-cartservice'
-        metrics_path: /probe
-        params:
-          module: [http_2xx]
-        static_configs:
-          - targets:
-            - http://cartservice:7070  # Replace with the correct service URL and port
-        relabel_configs:
-          - source_labels: [__address__]
-            target_label: __param_target
-          - target_label: __address__
-            replacement: blackbox-exporter-prometheus-blackbox-exporter:9115
-        
       - job_name: prometheus
         static_configs:
           - targets:

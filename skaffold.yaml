@@ -64,7 +64,7 @@ manifests:
     - ../vermon-edge/mon-agent/kubernetes/mon-agent.yaml
   kustomize:
     paths:
-    - kubernetes-manifests
+      - kubernetes-manifests
 deploy:
   kubectl: {}
 # "gcb" profile allows building and pushing the images

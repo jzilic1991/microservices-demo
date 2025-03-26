@@ -29,23 +29,25 @@ data:
             target_label: __param_target
           - target_label: __address__
             replacement: blackbox-exporter-prometheus-blackbox-exporter:9115  # The Blackbox Exporter service
-      - job_name: "cartservice-metrics"
-        metrics_path: "/metrics"
-        static_configs:
-          - targets: ["cartservice.default.svc.cluster.local:9464"]      
-      - job_name: 'blackbox-cartservice'
-        metrics_path: /probe
-        params:
-          module: [grpc_health]
-        static_configs:
-          - targets:
-            - http://cartservice:7070  # Replace with the correct service URL and port
+    
+      - job_name: 'istio-proxy'
+        metrics_path: /stats/prometheus
+        kubernetes_sd_configs:
+        - role: pod
         relabel_configs:
-          - source_labels: [__address__]
-            target_label: __param_target
-          - target_label: __address__
-            replacement: blackbox-exporter-prometheus-blackbox-exporter:9115
-        
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            regex: istio-proxy
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            regex: true
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            regex: (.+)
+            replacement: ${1}:15090
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+
       - job_name: prometheus
         static_configs:
           - targets:

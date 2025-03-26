@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: default
+  labels:
+    role: alert-rules
+data:
+  prometheus-alert-rules.yaml: |
+    groups:
+      - name: OnlineBoutiqueAlerts-R1-Istio
+        rules:
+
+        - alert: HighCartOperationLatency
+          expr: >
+            histogram_quantile(0.95, sum(rate(istio_request_duration_seconds_bucket{
+              destination_service=~"cartservice.*",
+              request_protocol="grpc",
+              request_path=~".*GetCart|.*AddItem|.*EmptyCart"
+            }[5m])) by (le)) > 0.2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cart operations high latency (95th percentile > 200ms)"
+
+        - alert: CriticalCartOperationLatency
+          expr: >
+            histogram_quantile(0.95, sum(rate(istio_request_duration_seconds_bucket{
+              destination_service=~"cartservice.*",
+              request_protocol="grpc",
+              request_path=~".*GetCart|.*AddItem|.*EmptyCart"
+            }[5m])) by (le)) > 0.5
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cart operations critical latency (> 500ms)"
+
+        - alert: HighCartOperationFailureRate
+          expr: >
+            (sum(rate(istio_requests_total{
+              destination_service=~"cartservice.*",
+              grpc_response_status!="0",
+              request_protocol="grpc",
+              request_path=~".*GetCart|.*AddItem|.*EmptyCart"
+            }[5m])) /
+            sum(rate(istio_requests_total{
+              destination_service=~"cartservice.*",
+              request_protocol="grpc",
+              request_path=~".*GetCart|.*AddItem|.*EmptyCart"
+            }[5m]))) > 0.005
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cart operations failure rate too high (> 0.5%)"
+
+        - alert: HighCartServiceCPUUsage
+          expr: >
+            avg(rate(container_cpu_usage_seconds_total{
+              container="server", pod=~"cartservice-.*"
+            }[5m])) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cart service CPU usage above 80%"
+
+        - alert: HighCartServiceMemoryUsage
+          expr: >
+            avg(container_memory_usage_bytes{
+              container="server", pod=~"cartservice-.*"
+            } / container_spec_memory_limit_bytes{
+              container="server", pod=~"cartservice-.*"
+            }) > 0.7
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cart service memory usage above 70%"
+
