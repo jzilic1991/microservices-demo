@@ -91,11 +91,11 @@ class WebsiteUser(FastHttpUser):
 class CyclicLoadShape(LoadTestShape):
     step_time = 10  # Time between each step in seconds
     step_load = 10  # Number of users added at each step
-    spawn_rate = 10  # Number of users to start/stop per second
+    spawn_rate = 5  # Number of users to start/stop per second
 
     def __init__(self):
         super().__init__()
-        self.scaling_up = True
+        self.scaling_up = False
         self.current_users = 0
         self.last_change_time = 0
 
@@ -111,8 +111,8 @@ class CyclicLoadShape(LoadTestShape):
                     self.scaling_up = False
                 logger.info(f"Scaling up to {self.current_users} users at {run_time} seconds")
             else:
-                self.current_users = 10
-                self.scaling_up = True
+                self.current_users = 5
+                self.scaling_up = False
                 logger.info(f"Scaling down to {self.current_users} users at {run_time} seconds")
 
             self.last_change_time = run_time
