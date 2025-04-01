@@ -46,10 +46,10 @@ build:
     context: src/frontend
   - image: zikadocker1991/adservice
     context: src/adservice
-  - image: zikadocker1991/mon-agent
-    context: ../vermon-edge/mon-agent
-    docker:
-      dockerfile: docker/Dockerfile
+#  - image: zikadocker1991/mon-agent
+#    context: ../vermon-edge/mon-agent
+#    docker:
+#      dockerfile: docker/Dockerfile
   - image: zikadocker1991/verifier
     context: ../vermon-edge/mon-server/
     docker:
@@ -61,7 +61,7 @@ build:
 manifests:
   rawYaml:
     - ../vermon-edge/mon-server/app/kubernetes/req-verifier.yaml
-    - ../vermon-edge/mon-agent/kubernetes/mon-agent.yaml
+#    - ../vermon-edge/mon-agent/kubernetes/mon-agent.yaml
   kustomize:
     paths:
       - kubernetes-manifests
