@@ -86,6 +86,9 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         image: zikadocker1991/mon-agent:latest
+        env:
+          - name: OBJECTIVE_VERIFIER_URL
+            value: "http://loadgenerator.default.svc.cluster.local:5001"
         ports:
         - containerPort: 8000
         resources:
