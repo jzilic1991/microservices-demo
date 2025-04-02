@@ -78,6 +78,8 @@ spec:
         env:
           - name: OBJECTIVE_VERIFIER_URL
             value: "http://loadgenerator.default.svc.cluster.local:5001"
+          - name: SERVICE_NAME
+            value: "currencyservice"
         ports:
           - containerPort: 8000
         resources:
