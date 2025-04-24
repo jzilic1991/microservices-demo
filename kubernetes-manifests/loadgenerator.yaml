@@ -105,6 +105,9 @@ spec:
           value: "localhost"
         - name: SERVER_PORT
           value: "5001"
+        volumeMounts:
+        - name: service-paths-config-volume
+          mountPath: /etc/service-config
         resources:
           requests:
             cpu: 300m
@@ -114,13 +117,12 @@ spec:
             memory: 512Mi
       - name: verifier
         image: zikadocker1991/verifier:v4
+        imagePullPolicy: Always
         volumeMounts:
-        - name: config-volume
-          mountPath: /etc/config
-        volumes:
-        - name: config-volume
-          configMap:
-            name: verifier-config
+        - name: verifier-config-volume
+          mountPath: /etc/verifier-config
+        - name: service-paths-config-volume
+          mountPath: /etc/service-config
         args: ["obj", "0"]
         env:
         - name: SERVER_PORT
@@ -146,9 +148,12 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
       volumes:
-      - name: config-volume
+      - name: service-paths-config-volume
         configMap:
           name: service-paths-config
+      - name: verifier-config-volume
+        configMap:
+          name: verifier-config
 ---
 apiVersion: v1
 kind: ServiceAccount
