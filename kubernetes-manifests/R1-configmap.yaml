@@ -10,7 +10,8 @@ data:
     {
       "verifiers": [
         "R1.1_latency",
-        "R1.2_empty_cart",
+        "R1.2_empty_cart_latency",
+        "R1.2_empty_cart_sequence",
         "R1.3_failure_rate",
         "R1.4_resource_usage"
       ]
