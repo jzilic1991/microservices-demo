@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 fake = Faker()
 
-SERVER_HOST = os.getenv("SERVER_HOST")
-SERVER_PORT = os.getenv("SERVER_PORT")
+SERVER_HOST = os.getenv("SERVER_HOST", "localhost")
+SERVER_PORT = os.getenv("SERVER_PORT", "5001")
 BASE_URL = f"http://{SERVER_HOST}:{SERVER_PORT}"
 
 products = [
@@ -25,35 +25,34 @@ products = [
     '9SIQT8TOJO',
     'L9ECAV7KIM',
     'LS4PSXUNUM',
-    'OLJCESPC7Z']
+    'OLJCESPC7Z'
+]
 
 def index(l):
-    l.client.get(f"{BASE_URL}/")
+    l.client.get(f"{BASE_URL}/", params={"user": l.user_id})
 
 def setCurrency(l):
     currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY']
-    l.client.post(f"{BASE_URL}/setCurrency", {'currency_code': random.choice(currencies)})
+    l.client.post(f"{BASE_URL}/setCurrency", {'currency_code': random.choice(currencies), 'user': l.user_id})
 
 def browseProduct(l):
-    l.client.get(f"{BASE_URL}/product/" + random.choice(products))
+    product = random.choice(products)
+    l.client.get(f"{BASE_URL}/product/{product}", params={"user": l.user_id})
 
 def viewCart(l):
-    l.client.get(f"{BASE_URL}/cart")
+    l.client.get(f"{BASE_URL}/cart", params={"user": l.user_id})
 
 def addToCart(l):
     product = random.choice(products)
-    l.client.get(f"{BASE_URL}/product/" + product)
+    l.client.get(f"{BASE_URL}/product/{product}", params={"user": l.user_id})
     l.client.post(f"{BASE_URL}/cart", {
         'product_id': product,
         'quantity': random.randint(1,10),
-        'user': l.user_id  # include user
-    })
-
-def empty_cart(l):
-    l.client.post(f'{BASE_URL}/cart/empty', {
         'user': l.user_id
     })
 
+def empty_cart(l):
+    l.client.post(f"{BASE_URL}/cart/empty", {'user': l.user_id})
 
 def checkout(l):
     addToCart(l)
@@ -72,16 +71,13 @@ def checkout(l):
         'user': l.user_id
     })
 
-
 def logout(l):
-    l.client.get(f'{BASE_URL}/logout')  
-
+    l.client.get(f"{BASE_URL}/logout", params={"user": l.user_id})
 
 class UserBehavior(TaskSet):
-
     def on_start(self):
-      self.user_id = fake.uuid4()  # assign a unique user ID
-      index(self)
+        self.user_id = fake.uuid4()
+        index(self)
 
     tasks = {
         index: 1,
@@ -94,12 +90,12 @@ class UserBehavior(TaskSet):
 
 class WebsiteUser(FastHttpUser):
     tasks = [UserBehavior]
-    wait_time = between(1, 1)  # Constant request frequency: 1 request per second
+    wait_time = between(1, 1)
 
 class CyclicLoadShape(LoadTestShape):
-    step_time = 10  # Time between each step in seconds
-    step_load = 10  # Number of users added at each step
-    spawn_rate = 5  # Number of users to start/stop per second
+    step_time = 10
+    step_load = 10
+    spawn_rate = 5
 
     def __init__(self):
         super().__init__()
@@ -114,7 +110,7 @@ class CyclicLoadShape(LoadTestShape):
         if elapsed_time >= self.step_time:
             if self.scaling_up:
                 self.current_users += self.step_load
-                if self.current_users >= 100:  # Max user limit for scaling up
+                if self.current_users >= 100:
                     self.current_users = 100
                     self.scaling_up = False
                 logger.info(f"Scaling up to {self.current_users} users at {run_time} seconds")
@@ -137,6 +133,5 @@ def on_test_stop(environment, **kwargs):
     logger.info("Test is stopping...")
 
 if __name__ == "__main__":
-    # Locust will use the WebsiteUser class as the default user
     WebsiteUser().run()
 

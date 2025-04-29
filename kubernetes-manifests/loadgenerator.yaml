@@ -96,6 +96,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         image: zikadocker1991/loadgenerator
+        imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
