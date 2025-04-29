@@ -45,10 +45,15 @@ def addToCart(l):
     l.client.get(f"{BASE_URL}/product/" + product)
     l.client.post(f"{BASE_URL}/cart", {
         'product_id': product,
-        'quantity': random.randint(1,10)})
-    
+        'quantity': random.randint(1,10),
+        'user': l.user_id  # include user
+    })
+
 def empty_cart(l):
-    l.client.post(f'{BASE_URL}/cart/empty')
+    l.client.post(f'{BASE_URL}/cart/empty', {
+        'user': l.user_id
+    })
+
 
 def checkout(l):
     addToCart(l)
@@ -64,8 +69,10 @@ def checkout(l):
         'credit_card_expiration_month': random.randint(1, 12),
         'credit_card_expiration_year': random.randint(current_year, current_year + 70),
         'credit_card_cvv': f"{random.randint(100, 999)}",
+        'user': l.user_id
     })
-    
+
+
 def logout(l):
     l.client.get(f'{BASE_URL}/logout')  
 
@@ -73,7 +80,8 @@ def logout(l):
 class UserBehavior(TaskSet):
 
     def on_start(self):
-        index(self)
+      self.user_id = fake.uuid4()  # assign a unique user ID
+      index(self)
 
     tasks = {
         index: 1,
