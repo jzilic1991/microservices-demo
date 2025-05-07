@@ -45,6 +45,7 @@ spec:
             privileged: false
             readOnlyRootFilesystem: true
           image: zikadocker1991/frontend
+          imagePullPolicy: Always
           ports:
           - containerPort: 8080
           readinessProbe:

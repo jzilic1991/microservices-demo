@@ -26,8 +26,8 @@ def index(l):
     logger.info(f"[Locust] GET / | user={l.user_id}")
 
 def setCurrency(l):
-    payload = {'currency_code': random.choice(['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY']), 'user': l.user_id}
-    l.client.post(f"{BASE_URL}/setCurrency", data=payload)
+    payload = {'currency_code': random.choice(['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY'])}
+    l.client.post(f"{BASE_URL}/setCurrency", params={"user": l.user_id}, data=payload)
     logger.info(f"[Locust] POST /setCurrency | user={l.user_id} | data={payload}")
 
 def browseProduct(l):
@@ -44,15 +44,13 @@ def addToCart(l):
     l.client.get(f"{BASE_URL}/product/{product}", params={"user": l.user_id})
     payload = {
         'product_id': product,
-        'quantity': random.randint(1, 10),
-        'user': l.user_id
+        'quantity': random.randint(1, 10)
     }
-    l.client.post(f"{BASE_URL}/cart", data=payload)
+    l.client.post(f"{BASE_URL}/cart", params={"user": l.user_id}, data=payload)
     logger.info(f"[Locust] POST /cart | user={l.user_id} | data={payload}")
 
 def empty_cart(l):
-    payload = {'user': l.user_id}
-    l.client.post(f"{BASE_URL}/cart/empty", data=payload)
+    l.client.post(f"{BASE_URL}/cart/empty", params={"user": l.user_id})
     logger.info(f"[Locust] POST /cart/empty | user={l.user_id}")
 
 def checkout(l):
@@ -67,10 +65,9 @@ def checkout(l):
         'credit_card_number': fake.credit_card_number(card_type="visa"),
         'credit_card_expiration_month': random.randint(1, 12),
         'credit_card_expiration_year': datetime.datetime.now().year + random.randint(1, 5),
-        'credit_card_cvv': f"{random.randint(100, 999)}",
-        'user': l.user_id
+        'credit_card_cvv': f"{random.randint(100, 999)}"
     }
-    l.client.post(f"{BASE_URL}/cart/checkout", data=payload)
+    l.client.post(f"{BASE_URL}/cart/checkout", params={"user": l.user_id}, data=payload)
     logger.info(f"[Locust] POST /cart/checkout | user={l.user_id} | data={payload}")
 
 def logout(l):
@@ -103,7 +100,7 @@ class WebsiteUser(FastHttpUser):
 
 class CyclicLoadShape(LoadTestShape):
     def tick(self):
-        return (1, 1)  # Fixed: 1 user, no scaling
+        return (1, 1)
 
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
