@@ -74,6 +74,6 @@ zope-event==5.0
     # via gevent
 zope-interface==6.4.post2
     # via gevent
-
+tabulate
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
